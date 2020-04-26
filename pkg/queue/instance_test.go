@@ -102,12 +102,13 @@ func TestResourceFree(t *testing.T) {
 	})
 
 	// mock queue wait cond signal
-	time.Sleep(200 * time.Millisecond)
-
-	close(stop)
+	time.AfterFunc(time.Millisecond*10, func() {
+		// wait task exec complete, block on the `q.cond.Wait()`, and close stop signal
+		close(stop)
+	})
 
 	select {
-	case <-time.After(500 * time.Microsecond):
+	case <-time.After(20 * time.Millisecond):
 		t.Error("close stop, method exit timeout.")
 	case <-signal:
 		t.Log("queue return.")
